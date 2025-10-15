@@ -1,0 +1,759 @@
+{
+  "info": {
+    "name": "DineAhead API (with Examples)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "4e7a6a3a-31a9-4f3a-8c4e-2f9f0f7a9c55",
+    "description": "DineAhead Backend API with sample responses for frontend integration. Uses Firebase Auth ID tokens (Authorization: Bearer {{idToken}})."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{idToken}}", "type": "string" }
+    ]
+  },
+  "variable": [{ "key": "baseUrl", "value": "{{baseUrl}}" }],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": { "method": "GET", "url": { "raw": "{{baseUrl}}/health" } },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "body": "{\n  \"status\": \"OK\",\n  \"timestamp\": \"2025-10-04T07:20:00.000Z\",\n  \"environment\": \"development\",\n  \"version\": \"1.0.0\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (User or Merchant)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api","auth","register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"User123!\",\n  \"role\": \"user\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"+1234567890\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "body": "{\n  \"message\": \"User registered successfully with Firebase Auth\",\n  \"user\": {\n    \"userId\": \"uid_abc123\",\n    \"email\": \"user@example.com\",\n    \"role\": \"user\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"phone\": \"+1234567890\"\n  },\n  \"tokens\": {\n    \"idToken\": \"<JWT_ID_TOKEN>\",\n    \"refreshToken\": \"<REFRESH_TOKEN>\",\n    \"expiresIn\": \"3600\",\n    \"uid\": \"uid_abc123\"\n  }\n}"
+            },
+            {
+              "name": "400 Bad Request (Email exists)",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "body": "{ \n  \"error\": \"EMAIL_EXISTS\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login (Firebase Auth via Backend)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api","auth","login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"User123!\"\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Login successful (Firebase Auth)\",\n  \"user\": {\n    \"userId\": \"uid_abc123\",\n    \"email\": \"user@example.com\",\n    \"role\": \"user\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"phone\": \"+1234567890\"\n  },\n  \"tokens\": {\n    \"idToken\": \"<JWT_ID_TOKEN>\",\n    \"refreshToken\": \"<REFRESH_TOKEN>\",\n    \"expiresIn\": \"3600\",\n    \"uid\": \"uid_abc123\"\n  }\n}"
+            },
+            {
+              "name": "401 Unauthorized (Invalid credentials)",
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \n  \"error\": \"INVALID_PASSWORD\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/auth/refresh-token", "host": ["{{baseUrl}}"], "path": ["api","auth","refresh-token"] },
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"idToken\": \"<NEW_JWT_ID_TOKEN>\",\n  \"refreshToken\": \"<NEW_REFRESH_TOKEN>\",\n  \"expiresIn\": \"3600\",\n  \"uid\": \"uid_abc123\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "List Restaurants (public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/user/restaurants?cuisine=&priceRange=&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","user","restaurants"],
+              "query": [{"key":"cuisine","value":""},{"key":"priceRange","value":""},{"key":"search","value":""}]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"id\": \"rest_1\",\n    \"merchantId\": \"uid_merchant1\",\n    \"name\": \"Bella Vista\",\n    \"description\": \"Authentic Italian cuisine\",\n    \"address\": \"123 Main St\",\n    \"phone\": \"+1234567892\",\n    \"email\": \"info@bellavista.com\",\n    \"cuisine\": [\"Italian\"],\n    \"priceRange\": \"mid-range\",\n    \"images\": [],\n    \"policies\": {\n      \"cancellationPolicy\": \"flexible\",\n      \"advanceBookingDays\": 30,\n      \"minBookingHours\": 2,\n      \"maxPartySize\": 8,\n      \"allowsCancellation\": true,\n      \"petFriendly\": false,\n      \"smokingAllowed\": false\n    },\n    \"businessHours\": {\n      \"monday\": { \"open\": \"09:00\", \"close\": \"22:00\", \"isOpen\": true }\n    },\n    \"rating\": 0,\n    \"totalReviews\": 0,\n    \"isActive\": true\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Restaurant Details (public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/user/restaurants/{{restaurantId}}", "host": ["{{baseUrl}}"], "path": ["api","user","restaurants","{{restaurantId}}"] }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"restaurant\": {\n    \"id\": \"rest_1\",\n    \"name\": \"Bella Vista\",\n    \"description\": \"Authentic Italian cuisine\",\n    \"address\": \"123 Main St\",\n    \"phone\": \"+1234567892\",\n    \"email\": \"info@bellavista.com\",\n    \"cuisine\": [\"Italian\"],\n    \"priceRange\": \"mid-range\",\n    \"images\": [],\n    \"policies\": {\n      \"cancellationPolicy\": \"flexible\",\n      \"advanceBookingDays\": 30,\n      \"minBookingHours\": 2,\n      \"maxPartySize\": 8,\n      \"allowsCancellation\": true,\n      \"petFriendly\": false,\n      \"smokingAllowed\": false\n    },\n    \"businessHours\": {\n      \"monday\": { \"open\": \"09:00\", \"close\": \"22:00\", \"isOpen\": true }\n    },\n    \"rating\": 0,\n    \"totalReviews\": 0\n  },\n  \"tables\": [\n    { \"id\": \"tbl_1\", \"restaurantId\": \"rest_1\", \"tableNumber\": \"T01\", \"capacity\": 4, \"location\": \"indoor\", \"amenities\": [\"window-view\"], \"isActive\": true }\n  ],\n  \"menu\": [\n    { \"id\": \"menu_1\", \"restaurantId\": \"rest_1\", \"name\": \"Margherita Pizza\", \"description\": \"Classic pizza\", \"price\": 18.99, \"category\": \"main\", \"isAvailable\": true }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Restaurant Menu (public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/user/restaurants/{{restaurantId}}/menu?category=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","user","restaurants","{{restaurantId}}","menu"],
+              "query": [{"key":"category","value":""}]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"restaurant\": { \"id\": \"rest_1\", \"name\": \"Bella Vista\" },\n  \"menu\": {\n    \"appetizer\": [],\n    \"main\": [\n      { \"id\": \"menu_1\", \"name\": \"Margherita Pizza\", \"description\": \"Classic pizza\", \"price\": 18.99, \"isAvailable\": true }\n    ],\n    \"dessert\": [],\n    \"beverage\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Check Available Tables",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/user/availability/tables?restaurantId={{restaurantId}}&date={{date}}&partySize=2&duration=120",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","user","availability","tables"],
+              "query": [
+                {"key":"restaurantId","value":"{{restaurantId}}"},
+                {"key":"date","value":"{{date}}"},
+                {"key":"partySize","value":"2"},
+                {"key":"duration","value":"120"}
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"date\": \"2025-10-15\",\n  \"partySize\": 2,\n  \"duration\": 120,\n  \"availableTables\": [\n    { \"id\": \"tbl_1\", \"restaurantId\": \"rest_1\", \"tableNumber\": \"T01\", \"capacity\": 4, \"location\": \"indoor\" }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Available Time Slots",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/user/availability/time-slots?tableId={{tableId}}&date={{date}}&duration=120",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","user","availability","time-slots"],
+              "query": [
+                {"key":"tableId","value":"{{tableId}}"},
+                {"key":"date","value":"{{date}}"},
+                {"key":"duration","value":"120"}
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"tableId\": \"tbl_1\",\n  \"date\": \"2025-10-15\",\n  \"duration\": 120,\n  \"availableSlots\": [\"18:00\", \"18:30\", \"19:00\", \"19:30\"]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Booking",
+          "request": {
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/user/bookings", "host": ["{{baseUrl}}"], "path": ["api","user","bookings"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"rest_1\",\n  \"tableId\": \"tbl_1\",\n  \"date\": \"2025-10-15\",\n  \"time\": \"19:00\",\n  \"duration\": 120,\n  \"partySize\": 2,\n  \"customerInfo\": {\n    \"name\": \"John Doe\",\n    \"phone\": \"+1234567890\",\n    \"email\": \"user@example.com\"\n  },\n  \"specialRequests\": \"birthday celebration\",\n  \"preOrder\": []\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+"body": "{\n  \"message\": \"Booking created successfully\",\n  \"booking\": {\n    \"id\": \"book_1\",\n    \"userId\": \"uid_abc123\",\n    \"createdBy\": \"uid_abc123\",\n    \"restaurantId\": \"rest_1\",\n    \"tableId\": \"tbl_1\",\n    \"date\": \"2025-10-15\",\n    \"time\": \"19:00\",\n    \"duration\": 120,\n    \"partySize\": 2,\n    \"status\": \"pending\",\n    \"customerInfo\": { \"name\": \"John Doe\", \"phone\": \"+1234567890\", \"email\": \"user@example.com\" },\n    \"specialRequests\": \"birthday celebration\",\n    \"preOrder\": [],\n    \"totalAmount\": 0,\n    \"paymentStatus\": \"pending\",\n    \"createdAt\": \"2025-10-04T07:30:00.000Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get My Bookings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/user/bookings?status=&upcoming=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","user","bookings"],
+              "query": [{"key":"status","value":""},{"key":"upcoming","value":"true"}]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"id\": \"book_1\",\n    \"userId\": \"uid_abc123\",\n    \"restaurantId\": \"rest_1\",\n    \"tableId\": \"tbl_1\",\n    \"date\": \"2025-10-15\",\n    \"time\": \"19:00\",\n    \"duration\": 120,\n    \"partySize\": 2,\n    \"status\": \"pending\",\n    \"restaurant\": { \"id\": \"rest_1\", \"name\": \"Bella Vista\" },\n    \"table\": { \"id\": \"tbl_1\", \"tableNumber\": \"T01\" },\n    \"preOrderItems\": []\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Booking Details",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/user/bookings/{{bookingId}}", "host": ["{{baseUrl}}"], "path": ["api","user","bookings","{{bookingId}}"] }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": \"book_1\",\n  \"userId\": \"uid_abc123\",\n  \"restaurantId\": \"rest_1\",\n  \"tableId\": \"tbl_1\",\n  \"date\": \"2025-10-15\",\n  \"time\": \"19:00\",\n  \"duration\": 120,\n  \"partySize\": 2,\n  \"status\": \"pending\",\n  \"restaurant\": { \"id\": \"rest_1\", \"name\": \"Bella Vista\" },\n  \"table\": { \"id\": \"tbl_1\", \"tableNumber\": \"T01\" },\n  \"preOrderItems\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cancel Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/user/bookings/{{bookingId}}/cancel", "host": ["{{baseUrl}}"], "path": ["api","user","bookings","{{bookingId}}","cancel"] },
+            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Change of plans\"\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Booking cancelled successfully\",\n  \"booking\": { \n    \"id\": \"book_1\", \n    \"status\": \"cancelled\", \n    \"cancellationReason\": \"Change of plans\",\n    \"cancelledAt\": \"2025-10-04T08:00:00.000Z\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Merchant",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/merchant/dashboard", "host": ["{{baseUrl}}"], "path": ["api","merchant","dashboard"] } },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"restaurant\": { \"id\": \"rest_1\", \"name\": \"Bella Vista\" },\n  \"stats\": {\n    \"totalTables\": 5,\n    \"totalMenuItems\": 12,\n    \"todayBookings\": 3,\n    \"pendingBookings\": 2,\n    \"availableMenuItems\": 11\n  },\n  \"recentBookings\": [\n    { \"id\": \"book_1\", \"time\": \"19:00\", \"partySize\": 2, \"status\": \"pending\" }\n  ]\n}"
+            }
+          ]
+        },
+        {
+"name": "Create Restaurant Profile",
+          "request": {
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/merchant/restaurant", "host": ["{{baseUrl}}"], "path": ["api","merchant","restaurant"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Bella Vista\",\n  \"description\": \"Authentic Italian cuisine\",\n  \"address\": \"123 Main St\",\n  \"phone\": \"+1234567892\",\n  \"email\": \"info@bellavista.com\",\n  \"cuisine\": [\"Italian\"],\n  \"priceRange\": \"mid-range\",\n  \"restaurantType\": \"Fine Dining\",\n  \"coverImage\": \"https://example.com/cover.jpg\",\n  \"socialMedia\": {\n    \"facebookUrl\": \"https://facebook.com/bellavista\",\n    \"instagramUrl\": \"https://instagram.com/bellavista\",\n    \"websiteUrl\": \"https://bellavista.com\"\n  },\n  \"location\": {\n    \"provinceCode\": \"KH-12\",\n    \"districtCode\": \"D-01\",\n    \"latitude\": 11.5564,\n    \"longitude\": 104.9282,\n    \"googleMapsLink\": \"https://maps.google.com/?q=...\"\n  },\n  \"policies\": {\n    \"petFriendly\": false,\n    \"smokingArea\": false,\n    \"outdoorSeating\": true,\n    \"advanceBookingDays\": 30,\n    \"minBookingHours\": 2,\n    \"maxPartySize\": 8,\n    \"allowsCancellation\": true\n  },\n  \"parking\": {\n    \"available\": true,\n    \"feeApplies\": false,\n    \"type\": \"Private Lot\"\n  },\n  \"payment\": {\n    \"cash\": true,\n    \"creditCard\": true,\n    \"mobilePayment\": true\n  },\n  \"deposit\": {\n    \"required\": true,\n    \"percent\": 20\n  },\n  \"cancellation\": {\n    \"allowFreeCancel\": true,\n    \"cancelBeforeHours\": 3\n  },\n  \"rewards\": {\n    \"onShowUp\": true,\n    \"description\": \"Free dessert on show up\"\n  },\n  \"notifications\": {\n    \"bookingAlerts\": true,\n    \"cancellationAlerts\": true\n  }\n}" }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Restaurant profile created successfully\",\n  \"restaurant\": { \"id\": \"rest_1\", \"name\": \"Bella Vista\", \"restaurantType\": \"Fine Dining\" }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Restaurant Profile",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/merchant/restaurant", "host": ["{{baseUrl}}"], "path": ["api","merchant","restaurant"] } },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \"id\": \"rest_1\", \"name\": \"Bella Vista\", \"description\": \"Authentic Italian cuisine\" }"
+            }
+          ]
+        },
+        {
+          "name": "Update Restaurant Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/merchant/restaurant", "host": ["{{baseUrl}}"], "path": ["api","merchant","restaurant"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Bella Vista Updated\",\n  \"description\": \"Updated description\",\n  \"address\": \"123 Main St\",\n  \"phone\": \"+1234567892\",\n  \"email\": \"info@bellavista.com\",\n  \"cuisine\": [\"Italian\"],\n  \"priceRange\": \"mid-range\"\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \n  \"message\": \"Restaurant profile updated successfully\",\n  \"restaurant\": { \"id\": \"rest_1\", \"name\": \"Bella Vista Updated\" }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Business Hours",
+          "request": {
+            "method": "PUT",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/merchant/restaurant/business-hours", "host": ["{{baseUrl}}"], "path": ["api","merchant","restaurant","business-hours"] },
+            "body": { "mode": "raw", "raw": "{\n  \"businessHours\": {\n    \"monday\": { \"open\": \"09:00\", \"close\": \"22:00\", \"isOpen\": true },\n    \"tuesday\": { \"open\": \"09:00\", \"close\": \"22:00\", \"isOpen\": true }\n  }\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \n  \"message\": \"Business hours updated successfully\",\n  \"businessHours\": { \"monday\": { \"open\": \"09:00\", \"close\": \"22:00\", \"isOpen\": true } }\n}"
+            }
+          ]
+        },
+        {
+"name": "Create Table",
+          "request": {
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/merchant/tables", "host": ["{{baseUrl}}"], "path": ["api","merchant","tables"] },
+            "body": { "mode": "raw", "raw": "{\n  \"tableNumber\": \"T01\",\n  \"capacity\": 4,\n  \"location\": \"indoor\",\n  \"amenities\": [\"window-view\"],\n  \"minBookingDuration\": 90,\n  \"maxBookingDuration\": 180,\n  \"minSpending\": 0\n}" }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+"body": "{ \n  \"message\": \"Table created successfully\",\n  \"table\": { \"id\": \"tbl_1\", \"tableNumber\": \"T01\", \"capacity\": 4, \"location\": \"indoor\", \"minBookingDuration\": 90, \"maxBookingDuration\": 180, \"minSpending\": 0 }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Tables",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/merchant/tables", "host": ["{{baseUrl}}"], "path": ["api","merchant","tables"] } },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+"body": "[ { \"id\": \"tbl_1\", \"tableNumber\": \"T01\", \"capacity\": 4, \"location\": \"indoor\", \"minBookingDuration\": 90, \"maxBookingDuration\": 180, \"minSpending\": 0 } ]"
+            }
+          ]
+        },
+        {
+          "name": "Update Table",
+          "request": {
+            "method": "PUT",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/merchant/tables/{{tableId}}", "host": ["{{baseUrl}}"], "path": ["api","merchant","tables","{{tableId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"capacity\": 6,\n  \"location\": \"indoor\"\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+"body": "{ \n  \"message\": \"Table updated successfully\",\n  \"table\": { \"id\": \"tbl_1\", \"tableNumber\": \"T01\", \"capacity\": 6, \"minBookingDuration\": 90, \"maxBookingDuration\": 180, \"minSpending\": 0 }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Table",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/merchant/tables/{{tableId}}", "host": ["{{baseUrl}}"], "path": ["api","merchant","tables","{{tableId}}"] } },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \"message\": \"Table deleted successfully\" }"
+            }
+          ]
+        },
+        {
+          "name": "Create Menu Item",
+          "request": {
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/merchant/menu", "host": ["{{baseUrl}}"], "path": ["api","merchant","menu"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Margherita Pizza\",\n  \"description\": \"Classic pizza\",\n  \"price\": 18.99,\n  \"category\": \"main\"\n}" }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \n  \"message\": \"Menu item created successfully\",\n  \"menuItem\": { \"id\": \"menu_1\", \"name\": \"Margherita Pizza\", \"price\": 18.99, \"category\": \"main\" }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Menu Items",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/merchant/menu", "host": ["{{baseUrl}}"], "path": ["api","merchant","menu"] } },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "[ { \"id\": \"menu_1\", \"name\": \"Margherita Pizza\", \"price\": 18.99, \"category\": \"main\", \"isAvailable\": true } ]"
+            }
+          ]
+        },
+        {
+          "name": "Update Menu Item",
+          "request": {
+            "method": "PUT",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/merchant/menu/{{menuItemId}}", "host": ["{{baseUrl}}"], "path": ["api","merchant","menu","{{menuItemId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"price\": 19.99,\n  \"isAvailable\": true\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \n  \"message\": \"Menu item updated successfully\",\n  \"menuItem\": { \"id\": \"menu_1\", \"price\": 19.99, \"isAvailable\": true }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Menu Item",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/merchant/menu/{{menuItemId}}", "host": ["{{baseUrl}}"], "path": ["api","merchant","menu","{{menuItemId}}"] } },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \"message\": \"Menu item deleted successfully\" }"
+            }
+          ]
+        },
+        {
+          "name": "Toggle Menu Item Availability",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/merchant/menu/{{menuItemId}}/availability", "host": ["{{baseUrl}}"], "path": ["api","merchant","menu","{{menuItemId}}","availability"] },
+            "body": { "mode": "raw", "raw": "{\n  \"isAvailable\": false\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \n  \"message\": \"Menu item disabled successfully\",\n  \"menuItem\": { \"id\": \"menu_1\", \"isAvailable\": false }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bookings (Merchant Management)",
+      "item": [
+        {
+          "name": "Calendar (month summary)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/calendar?month=2025-10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","bookings","calendar"],
+              "query": [{"key":"month","value":"2025-10"}]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"month\": \"2025-10\",\n  \"bookingDates\": [\n    { \"date\": \"2025-10-04\", \"bookingCount\": 3 },\n    { \"date\": \"2025-10-05\", \"bookingCount\": 1 }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Stats",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/bookings/stats", "host": ["{{baseUrl}}"], "path": ["api","bookings","stats"] } },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"today\": { \"total\": 3, \"pending\": 2, \"confirmed\": 1, \"completed\": 0, \"cancelled\": 0, \"noShow\": 0 },\n  \"overall\": { \"pending\": 2, \"upcomingConfirmed\": 4, \"totalBookings\": 20, \"totalRevenue\": 245.50 }\n}"
+            }
+          ]
+        },
+        {
+"name": "List Bookings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings?upcoming=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","bookings"],
+              "query": [{"key":"upcoming","value":"true"}]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"id\": \"book_1\",\n    \"userId\": \"uid_abc123\",\n    \"restaurantId\": \"rest_1\",\n    \"tableId\": \"tbl_1\",\n    \"date\": \"2025-10-15\",\n    \"time\": \"19:00\",\n    \"duration\": 120,\n    \"partySize\": 2,\n    \"status\": \"pending\",\n    \"customer\": { \"id\": \"uid_abc123\", \"name\": \"John Doe\", \"email\": \"user@example.com\", \"phone\": \"+1234567890\" },\n    \"table\": { \"id\": \"tbl_1\", \"tableNumber\": \"T01\", \"capacity\": 4, \"location\": \"indoor\" },\n    \"preOrderItems\": []\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Booking Details (merchant)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/bookings/{{bookingId}}", "host": ["{{baseUrl}}"], "path": ["api","bookings","{{bookingId}}"] } },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": \"book_1\",\n  \"userId\": \"uid_abc123\",\n  \"restaurantId\": \"rest_1\",\n  \"tableId\": \"tbl_1\",\n  \"date\": \"2025-10-15\",\n  \"time\": \"19:00\",\n  \"duration\": 120,\n  \"partySize\": 2,\n  \"status\": \"pending\",\n  \"customer\": { \"id\": \"uid_abc123\", \"name\": \"John Doe\", \"email\": \"user@example.com\", \"phone\": \"+1234567890\" },\n  \"table\": { \"id\": \"tbl_1\", \"tableNumber\": \"T01\", \"capacity\": 4, \"location\": \"indoor\", \"amenities\": [\"window-view\"] },\n  \"preOrderItems\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Accept Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/accept", "host": ["{{baseUrl}}"], "path": ["api","bookings","{{bookingId}}","accept"] },
+            "body": { "mode": "raw", "raw": "{\n  \"merchantNotes\": \"See you soon\"\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \n  \"message\": \"Booking accepted successfully\",\n  \"booking\": { \"id\": \"book_1\", \"status\": \"confirmed\", \"merchantNotes\": \"See you soon\", \"confirmedAt\": \"2025-10-04T08:05:00.000Z\" }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Reject Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/reject", "host": ["{{baseUrl}}"], "path": ["api","bookings","{{bookingId}}","reject"] },
+            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"We are full\",\n  \"merchantNotes\": \"Try earlier\"\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \n  \"message\": \"Booking rejected successfully\",\n  \"booking\": { \"id\": \"book_1\", \"status\": \"rejected\", \"cancellationReason\": \"We are full\" }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Booking",
+          "request": {
+            "method": "PUT",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/bookings/{{bookingId}}", "host": ["{{baseUrl}}"], "path": ["api","bookings","{{bookingId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"time\": \"20:00\",\n  \"merchantNotes\": \"Updated time\"\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \n  \"message\": \"Booking updated successfully\",\n  \"booking\": { \"id\": \"book_1\", \"time\": \"20:00\", \"merchantNotes\": \"Updated time\" }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cancel Booking (merchant)",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/cancel", "host": ["{{baseUrl}}"], "path": ["api","bookings","{{bookingId}}","cancel"] },
+            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Unexpected closure\"\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \n  \"message\": \"Booking cancelled successfully\",\n  \"booking\": { \"id\": \"book_1\", \"status\": \"cancelled\", \"cancellationReason\": \"Unexpected closure\" }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Complete Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/complete", "host": ["{{baseUrl}}"], "path": ["api","bookings","{{bookingId}}","complete"] },
+            "body": { "mode": "raw", "raw": "{\n  \"paymentStatus\": \"paid\"\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \n  \"message\": \"Booking marked as completed\",\n  \"booking\": { \"id\": \"book_1\", \"status\": \"completed\", \"paymentStatus\": \"paid\" }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Mark No-Show",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "url": { "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/no-show", "host": ["{{baseUrl}}"], "path": ["api","bookings","{{bookingId}}","no-show"] },
+            "body": { "mode": "raw", "raw": "{\n  \"merchantNotes\": \"Customer did not arrive\"\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key":"Content-Type","value":"application/json"}],
+              "_postman_previewlanguage": "json",
+              "body": "{ \n  \"message\": \"Booking marked as no-show\",\n  \"booking\": { \"id\": \"book_1\", \"status\": \"no-show\" }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
